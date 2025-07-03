@@ -182,7 +182,6 @@ void Driver<F, S>::initialize_graph(std::vector<operation>* stream) {
 //                abort();
 //            }
         }
-//        wrapper::run_batch_edge_update(m_method, *real_stream, start, end, operationType::INSERT);
 
         auto end_time = std::chrono::high_resolution_clock::now();
         thread_time[thread_id] = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
@@ -208,141 +207,7 @@ void Driver<F, S>::initialize_graph(std::vector<operation>* stream) {
     log_info("global speed: %.6lf", global_speed);
     delete real_stream;
 
-//    for (uint64_t j = 0; j < stream.size(); j++) {
-//        if (j % 100000 == 0) {
-//            std::cout << "Checking edge " << j << "/ " << stream.size() << std::endl;
-//        }
-//        operation &op = stream[j];
-//        auto edge = op.e;
-//        if(!wrapper::has_edge(m_method, edge.source, edge.destination)) {
-//            int res = wrapper::has_edge(m_method, edge.source, edge.destination);
-//            std::cout << res << " dest: " << edge.destination << std::endl;
-//        }
-//    }
 }
-
-
-//template <class F, class S>
-//void Driver<F, S>::initialize_graph(std::vector<operation> & stream) {
-//    uint64_t num_threads = 16;
-//    std::cout << "num threads: " << num_threads << std::endl;
-//    uint64_t chunk_size = (stream.size() + num_threads - 1) / num_threads;
-////    uint64_t check_point_size = m_config.insert_delete_checkpoint_size;
-//
-//    std::vector<double> thread_time(num_threads);
-//    std::vector<std::vector<double>> thread_check_point(num_threads);
-//
-//    wrapper::set_max_threads(m_method, num_threads + m_config.reader_threads + 32);
-//
-//    std::vector<std::thread> reader_threads;
-//
-////    auto thread_function = [this, &stream, chunk_size, &thread_time, &thread_check_point](int thread_id) {
-////        wrapper::init_thread(m_method, thread_id);
-////        auto start_time = std::chrono::high_resolution_clock::now();
-////
-////        uint64_t start = thread_id * chunk_size;
-////        uint64_t end = std::min(start + chunk_size, stream.size());
-////
-////        wrapper::run_batch_edge_update(m_method, stream, 0, stream.size(), operationType::INSERT);
-////
-////        auto end_time = std::chrono::high_resolution_clock::now();
-////        thread_time[thread_id] = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-////        wrapper::end_thread(m_method, thread_id);
-////    };
-//
-//    auto thread_function1 = [this, &stream, chunk_size, &thread_time, &thread_check_point](int thread_id) {
-//        wrapper::init_thread(m_method, thread_id);
-//
-//        uint64_t start = thread_id * chunk_size;
-//        uint64_t end = std::min(start + chunk_size, stream.size());
-//        uint64_t this_end = start + (end - start) * 0.2;
-//
-//        wrapper::run_batch_edge_update(m_method, stream, start, this_end, operationType::INSERT);
-//        wrapper::end_thread(m_method, thread_id);
-//    };
-//
-//    auto thread_function2 = [this, &stream, chunk_size, &thread_time, &thread_check_point](int thread_id) {
-//        wrapper::init_thread(m_method, thread_id);
-//
-//        uint64_t start = thread_id * chunk_size;
-//        uint64_t end = std::min(start + chunk_size, stream.size());
-//        uint64_t this_end = start + (end - start) * 0.2;
-//
-//        wrapper::run_batch_edge_update(m_method, stream, this_end, end, operationType::INSERT);
-//        wrapper::end_thread(m_method, thread_id);
-//    };
-//
-//    std::vector<std::future<void>> futures;
-//    for (int i = 0; i < num_threads; i++) {
-//        futures.push_back(std::async(std::launch::async, thread_function1, i));
-//    }
-//
-//    for (auto& future : futures) {
-//        future.get();
-//    }
-//
-//    std::vector<std::future<void>> futures2;
-//
-//    auto snapshot = wrapper::get_shared_snapshot(m_method);
-//    auto search_path = m_workload_dir + "/target_stream_get_edge_general.stream";
-//
-//    std::vector<operation> search_stream;
-//    read_stream(search_path, search_stream);
-//    auto initial_size = search_stream.size();
-//    for (int i = 0; i < m_config.repeat_times; i++) {
-//        for (int j = 0; j < initial_size; j++) {
-//            search_stream.push_back(search_stream[j]);
-//        }
-//    }
-//    if (search_stream.size() == 0) return;
-//
-//    std::vector<std::thread> threads;
-//
-//    auto worker = [this, &search_stream, &snapshot, chunk_size, &thread_check_point](int thread_id) {
-//        uint64_t start = thread_id * chunk_size;
-//        uint64_t size = search_stream.size();
-//        uint64_t end = start + chunk_size;
-//        if (end > size) end = size;
-//
-//        wrapper::init_thread(m_method, thread_id);
-//        auto snapshot_local = wrapper::snapshot_clone(snapshot);
-//        uint64_t valid_sum = 0;
-//        do {
-//            for (uint64_t j = start; j < end; j++) {
-//                const operation &op = search_stream[j];
-//                const driver::graph::weightedEdge &edge = op.e;
-//
-////                switch (op.type) {
-////                    case operationType::GET_EDGE:
-////                        break;
-////                    default:
-////                        throw std::runtime_error("Invalid operation type in target stream\n");
-////                }
-//            }
-//        } while(true);
-//        std::cout << valid_sum << std::endl;
-//    };
-//    for (int i = 0; i < num_threads; i++) {
-//        threads.emplace_back(worker, i);
-//    }
-//
-//    // start writer
-//    auto start_global = std::chrono::high_resolution_clock::now();
-//    for (int i = 0; i < num_threads; i++) {
-//        futures2.push_back(std::async(std::launch::async, thread_function2, i));
-//    }
-//
-//    for (auto& future : futures2) {
-//        future.get();
-//    }
-//
-//    auto end_global = std::chrono::high_resolution_clock::now();
-//    auto duration_global = std::chrono::duration_cast<std::chrono::nanoseconds>(end_global - start_global);
-//    log_info("global duration: %ld", duration_global.count());
-//    double global_speed = static_cast<double>(stream.size() * 0.8) / duration_global.count() * 1000000.0;
-//    log_info("global speed: %.6lf", global_speed);
-//    abort();
-//}
 
 
 template <class F, class S>
@@ -416,53 +281,6 @@ void Driver<F, S>::execute_insert_delete(const std::string &target_path, const s
 //    int value_after = getValue();
 //    log_info("memory usage: %d kb", value_after- value_before);
 }
-
-
-//template <class F, class S>
-//void Driver<F, S>::execute_batch_insert(const std::string &target_path, const std::string &output_path) {
-//    std::vector<operation> target_stream;
-//    read_stream(target_path, target_stream);
-//
-//    uint64_t num_threads = m_config.insert_delete_num_threads;
-//    // uint64_t chunk_size = (target_stream.size() + num_threads - 1) / num_threads;
-//    uint64_t batch_size = m_config.insert_delete_checkpoint_size;
-//
-//    std::atomic<uint64_t> global_batch_start{0};
-//
-//    wrapper::set_max_threads(m_method, 32); // TODO DEBUG Special negative value
-//
-//    auto start_global = std::chrono::high_resolution_clock::now();
-//
-//    auto thread_function = [this, &target_stream, batch_size, &global_batch_start, &start_global](int thread_id) {
-//        wrapper::init_thread(m_method, thread_id);
-//        uint64_t batch_start = 0, batch_end = 0;
-//        auto start_time = std::chrono::high_resolution_clock::now();
-//
-//        while ((batch_start = global_batch_start.fetch_add(batch_size)) < target_stream.size()) {
-//            batch_end = std::min(target_stream.size(), batch_start + batch_size);
-//            std::cout << "Inserting edge " << batch_start << "/ " << target_stream.size() << std::endl;
-//            wrapper::run_batch_edge_update(m_method, target_stream, batch_start, batch_end, operationType::INSERT);
-//        }
-//
-//        wrapper::end_thread(m_method, thread_id);
-//    };
-//
-//    std::vector<std::future<void>> futures;
-//    for (int i = 0; i < num_threads; i++) {
-//        futures.push_back(std::async(std::launch::async, thread_function, i));
-//    }
-//
-//    for (auto& future : futures) {
-//        future.get();
-//    }
-//
-//    auto end_global = std::chrono::high_resolution_clock::now();
-//    auto duration_global = std::chrono::duration_cast<std::chrono::nanoseconds>(end_global - start_global);
-//
-//    double global_speed = static_cast<double>(target_stream.size()) / duration_global.count() * 1000000.0;
-//
-//    log_info("global speed: %.6lf", global_speed);
-//}
 
 
 template <class F, class S>
@@ -564,7 +382,6 @@ void Driver<F, S>::execute_insert_real_ldbc(const std::string & target_path) {
             auto edge = real_stream->at(j);
             wrapper::insert_edge(m_method, edge.first, edge.second, 0.0);
         }
-//        wrapper::run_batch_edge_update(m_method, *real_stream, start, end, operationType::INSERT);
 
         auto end_time = std::chrono::high_resolution_clock::now();
         thread_time[thread_id] = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
@@ -593,83 +410,10 @@ void Driver<F, S>::execute_insert_real_ldbc(const std::string & target_path) {
 
 template <class F, class S>
 void Driver<F, S>::execute_update(const std::string & target_path, const std::string & output_path, int repeat_times) {
-    std::vector<operation> target_stream;
-    read_stream(target_path, target_stream);
-
-    std::vector<std::thread> threads;
-    uint64_t chunk_size = (target_stream.size() + m_config.update_num_threads - 1) / m_config.update_num_threads;
-    std::vector<double> thread_time(m_config.update_num_threads);
-
-    uint64_t check_point_size = m_config.update_checkpoint_size;
-    std::vector<std::vector<double>> thread_check_point(m_config.update_num_threads);
-
-    wrapper::set_max_threads(m_method, m_config.update_num_threads);
-    
-    auto start_global = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < m_config.update_num_threads; i++) {
-        threads.emplace_back(std::thread([this, &target_stream, chunk_size, &thread_time, repeat_times, check_point_size, &thread_check_point] (int thread_id) {
-            wrapper::init_thread(m_method, thread_id);
-            auto start_time = std::chrono::high_resolution_clock::now();
-            uint64_t start = thread_id * chunk_size;
-            uint64_t size = target_stream.size();
-            uint64_t end = start + chunk_size;
-            if (end > size) end = size;
-            
-            for (int i = 0; i < repeat_times; i++) {
-                for (uint64_t j = start; j < end; j++) {
-                    operation& op = target_stream[j];
-                    driver::graph::weightedEdge& edge = op.e;
-                    
-                    wrapper::insert_edge(m_method, edge.source, edge.destination, edge.weight);
-                    wrapper::remove_edge(m_method, edge.source, edge.destination);
-
-                    auto mid_time = std::chrono::high_resolution_clock::now();
-
-                    if ((j + 1) % check_point_size == 0) {
-                        thread_check_point[thread_id].push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(mid_time - start_time).count());
-                    }
-                }
-            }
-
-            auto end_time = std::chrono::high_resolution_clock::now();
-            
-            thread_time[thread_id] = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-            wrapper::end_thread(m_method, thread_id);
-        }, i));
-    }
-
-    for (auto& thread : threads) {
-        thread.join();
-    }
-
-    auto end_global = std::chrono::high_resolution_clock::now();
-    auto duration_global = std::chrono::duration_cast<std::chrono::nanoseconds>(end_global - start_global);
-
-    log_info("global duration: %d", duration_global.count());
-    double global_speed = (double) target_stream.size() / duration_global.count() * 1000000.0;
-
-    log_info("global speed: %.6lf", global_speed);
-
-    for (int i = 0; i < m_config.update_num_threads; i++) {
-        log_info("thread %d took: %.6lf in total", i, thread_time[i]);
-    }
-
-    for (int i = 0; i < m_config.update_num_threads; i++) {
-        for (int j = 0; j < thread_check_point[i].size(); j++) {
-            log_info("thread %d check point %d: %.6lf", i, j * check_point_size, thread_check_point[i][j]);
-        }
-    }
-
-    for (uint64_t j = 0; j < target_stream.size(); j++) {
-        operation op = target_stream[j];
-        driver::graph::weightedEdge edge = op.e;
-        
-        wrapper::insert_edge(m_method, edge.source, edge.destination, edge.weight);
-    }
-    execute_microbenchmarks(m_workload_dir + "/target_stream_scan_neighbor_general.stream", m_output_dir + "/impact_of_scan.out", operationType::SCAN_NEIGHBOR, 1);
+    // Use execute_microbenchmarks() below.
 }
 
+// Note: function for update evaluation
 //template <class F, class S>
 //void Driver<F, S>::execute_microbenchmarks(const std::string & target_path, const std::string & output_path, operationType op_type, int num_threads) {
 //    std::vector<operation> target_stream;
@@ -756,6 +500,7 @@ void Driver<F, S>::execute_update(const std::string & target_path, const std::st
 //
 //}
 
+// Note: function for search/scan evaluation
 template <class F, class S>
 void Driver<F, S>::execute_microbenchmarks(const std::string & target_path, const std::string & output_path, operationType op_type, int num_threads) {
     std::vector<operation> target_stream;
@@ -900,119 +645,12 @@ void Driver<F, S>::execute_microbenchmarks(const std::string & target_path, cons
 
     log_info("global speed: %.6lf", global_speed);
     log_info("average speed: %.6lf", average_speed);
-
-//    for (int i = 0; i < num_threads; i++) {
-//        for (size_t j = 0; j < thread_check_point[i].size(); j++) {
-//            log_info("thread %d check point %d: %.6lf", i, static_cast<int>(j * check_point_size), thread_check_point[i][j]);
-//        }
-//    }
-
-//    std::cout << dest_sum.load() << ' ' << scan_neighbor_size.load() << std::endl;
 }
 
 
 template <class F, class S>
 void Driver<F, S>::execute_concurrent(const std::string & target_path, const std::string & output_path, operationType type) {
-    std::vector<operation> target_stream;
-    read_stream(target_path, target_stream);
-
-    std::vector<std::future<void>> futures;
-    std::vector<std::vector<vertexID>> results;
-    wrapper::set_max_threads(m_method, 80);
-    std::vector<double> thread_time(32);
-    
-    uint64_t check_point_size = 100;
-    std::vector<double> thread_check_point(m_num_threads);
-    auto start_global = std::chrono::high_resolution_clock::now();
-
-    int tot = 0;
-    uint64_t insert_num = 0;
-    uint64_t size = wrapper::vertex_count(m_method);
-    for (auto & op : target_stream) {
-        operationType type = op.type;
-        driver::graph::weightedEdge edge = op.e;
-
-        if (type == operationType::INSERT) {
-            wrapper::insert_edge(m_method, edge.source, edge.destination, edge.weight);
-            insert_num++;
-
-            if ((insert_num + 1) % check_point_size == 0) {
-                auto mid_time = std::chrono::high_resolution_clock::now();
-                thread_check_point.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(mid_time - start_global).count());
-            }
-        }
-        else {
-            auto start = std::chrono::high_resolution_clock::now();
-            auto snapshot = wrapper::get_shared_snapshot(m_method);
-                
-            if (type == operationType::BFS) {
-                futures.emplace_back(std::async([this, tot, &edge, &results, snapshot, &start, &thread_time]() {
-                    int thread_id = tot + 1;
-                    wrapper::init_thread(m_method, thread_id);
-                    std::vector<vertexID> result(wrapper::size(snapshot));
-                    bfs(snapshot, thread_id, edge.source, result);
-                    wrapper::end_thread(m_method, thread_id);
-            	    auto end = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-                    thread_time[tot] = duration.count();
-                }));
-            }
-            else if (type == operationType::SSSP) {
-                futures.emplace_back(std::async([this, tot, &edge, &results, snapshot, &start, &thread_time]() {
-                    int thread_id = tot + 1;
-                    wrapper::init_thread(m_method, thread_id);
-                    std::vector<double> result(wrapper::size(snapshot));
-                    sssp(snapshot, thread_id, edge.source, result);
-                    wrapper::end_thread(m_method, thread_id);
-            	    auto end = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-	                thread_time[tot] = duration.count();
-                }));
-            }
-            else if (type == operationType::WCC) {
-                futures.emplace_back(std::async([this, tot, &edge, &results, snapshot, &start, &thread_time]() {
-                    int thread_id = tot + 1;
-                    wrapper::init_thread(m_method, thread_id);
-                    std::vector<int> result(wrapper::size(snapshot));
-                    wcc(snapshot, thread_id, result);
-                    wrapper::end_thread(m_method, thread_id);
-            	    auto end = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-	                thread_time[tot] = duration.count();
-                }));
-            }
-            else if (type == operationType::PAGE_RANK) {
-                futures.emplace_back(std::async([this, tot, &edge, &results, snapshot, &start, &thread_time]() {
-                    int thread_id = tot + 1;
-                    wrapper::init_thread(m_method, thread_id);
-                    std::vector<double> result(wrapper::size(snapshot));
-                    page_rank(snapshot, thread_id, m_config.damping_factor, m_config.num_iterations, result);
-                    wrapper::end_thread(m_method, thread_id);
-            	    auto end = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-	                thread_time[tot] = duration.count();
-                }));
-            }
-            else {
-                throw std::runtime_error("Invalid operation type in target stream\n");
-            }
-
-            snapshot.reset();
-	    tot++;
-        }
-    }
-
-    for (auto& fut : futures) {
-        fut.get();
-    }
-
-    for (auto & time : thread_time) {
-        log_info("thread time: %.6lf", time);
-    }
-
-    for (int i = 0; i < thread_check_point.size(); i++) {
-        log_info("check point %d: %.6lf", i * check_point_size, thread_check_point[i]);
-    }
+    // Deprecated‌
 }
 
 template <class F, class S>
@@ -1227,30 +865,6 @@ void Driver<F, S>::page_rank(const S &snapshot, int thread_id,
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        // Set up performance event attributes
-//        struct perf_event_attr pe;
-//        memset(&pe, 0, sizeof(struct perf_event_attr));
-//        pe.type = PERF_TYPE_HARDWARE;
-//        pe.size = sizeof(struct perf_event_attr);
-//        pe.config = PERF_COUNT_HW_CACHE_MISSES;
-//        pe.disabled = 1;
-//        pe.exclude_kernel = 1;
-//        pe.exclude_hv = 1;
-
-        // Get thread ID
-//        pid_t tid = syscall(SYS_gettid);
-
-        // Open performance event for the current thread
-//        int fd = perf_event_open(&pe, tid, -1, -1, 0);
-//        if (fd == -1) {
-//            fprintf(stderr, "Error opening perf event: %llx\n", pe.config);
-//            exit(EXIT_FAILURE);
-//        }
-
-        // Reset and enable the counter
-//        ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-//        ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-
         // before
         for (vertexID source = 0; source < size; source++) {
             double incoming_total = 0.0;
@@ -1262,22 +876,6 @@ void Driver<F, S>::page_rank(const S &snapshot, int thread_id,
             result[source] =
                     base_score + damping_factor * (incoming_total + dangling_sum);
         }
-        // after
-
-        // Disable the counter
-//        ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-
-        // Read the counter value
-//        long long cache_misses = 0;
-//        read(fd, &cache_misses, sizeof(long long));
-
-        // Close the file descriptor
-//        close(fd);
-
-        // Output the cache miss count
-//        printf("Iteration %d, Thread %d, Cache misses: %lld\n", iter, thread_id,
-//               cache_misses);
-
         auto end = std::chrono::high_resolution_clock::now();
         double duration =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(end - start)
@@ -1287,101 +885,98 @@ void Driver<F, S>::page_rank(const S &snapshot, int thread_id,
 }
 
 
-// Small: for read
-template <class F, class S>
-void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
-    std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
-    std::vector<operation> target_stream;
-    std::vector<operation> target_stream2;
-    read_stream(target_path, target_stream);
-    read_stream(target_path2, target_stream2);
-//    std::shuffle(target_stream.begin(), target_stream.end(), std::mt19937(std::random_device()()));
-//    wrapper::set_max_threads(m_method, m_num_threads);
-    wrapper::set_max_threads(m_method, -33);    // NOTE special value because of the not-full incompatibility between system and the evaluation framework
-    pthread_barrier_t barrier;
-    pthread_barrier_init(&barrier, nullptr, 32);
+// Small lookups + Batch update: for read, sortledton cannot finish a round of lookup before finishing the batch update.
+// template <class F, class S>
+// void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
+//     std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
+//     std::vector<operation> target_stream;
+//     std::vector<operation> target_stream2;
+//     read_stream(target_path, target_stream);
+//     read_stream(target_path2, target_stream2);
+// //    std::shuffle(target_stream.begin(), target_stream.end(), std::mt19937(std::random_device()()));
+// //    wrapper::set_max_threads(m_method, m_num_threads);
+//     wrapper::set_max_threads(m_method, -33);    // NOTE special value because of the not-full incompatibility between system and the evaluation framework
+//     pthread_barrier_t barrier;
+//     pthread_barrier_init(&barrier, nullptr, 32);
 
-    std::vector<std::thread> writer_threads;
-    uint64_t chunk_size = m_config.writer_threads == 0 ? 0 : (target_stream.size() + m_config.writer_threads - 1) / m_config.writer_threads;
-    std::vector<double> thread_time(m_config.writer_threads);
-    std::vector<double> thread_speed(m_config.writer_threads);
-    uint64_t batch_size = m_config.insert_delete_checkpoint_size;
-    std::vector<std::vector<double>> thread_check_point(m_config.writer_threads);
+//     std::vector<std::thread> writer_threads;
+//     uint64_t chunk_size = m_config.writer_threads == 0 ? 0 : (target_stream.size() + m_config.writer_threads - 1) / m_config.writer_threads;
+//     std::vector<double> thread_time(m_config.writer_threads);
+//     std::vector<double> thread_speed(m_config.writer_threads);
+//     uint64_t batch_size = m_config.insert_delete_checkpoint_size;
+//     std::vector<std::vector<double>> thread_check_point(m_config.writer_threads);
 
-    std::vector<std::thread> reader_threads;
-    std::vector<std::vector<double>> reader_execution_time(m_config.reader_threads);
+//     std::vector<std::thread> reader_threads;
+//     std::vector<std::vector<double>> reader_execution_time(m_config.reader_threads);
 
-    auto snapshot = wrapper::get_shared_snapshot(m_method);
-//    uint64_t num_vertices = wrapper::snapshot_vertex_count(snapshot);
-//    std::vector<uint64_t> degree_list(num_vertices);
-//    for (uint64_t i = 0; i < num_vertices; i++) degree_list[i] = wrapper::degree(m_method, i);
+//     auto snapshot = wrapper::get_shared_snapshot(m_method);
 
-    std::atomic<uint64_t> reader_count{0};
-        reader_threads.emplace_back(
-                std::thread([this, &reader_execution_time, &snapshot, &reader_count, &target_stream2](int thread_id) {
-                wrapper::init_thread(m_method, thread_id);
-                auto snapshot_local = wrapper::snapshot_clone(snapshot);
+//     std::atomic<uint64_t> reader_count{0};
+//         reader_threads.emplace_back(
+//                 std::thread([this, &reader_execution_time, &snapshot, &reader_count, &target_stream2](int thread_id) {
+//                 wrapper::init_thread(m_method, thread_id);
+//                 auto snapshot_local = wrapper::snapshot_clone(snapshot);
 
-                uint64_t sum = 0;
-                uint64_t valid_sum = 0;
-                int round = 0;
-                while(true) {
-                    auto start_time = std::chrono::high_resolution_clock::now();
-                    for (uint64_t j = 0; j < target_stream2.size(); j++) {
-                        const operation& op = target_stream2[j];
-                        const driver::graph::weightedEdge& edge = op.e;
-                        sum += wrapper::snapshot_has_edge(snapshot_local, edge.source, edge.destination);
-                    }
-                    if(round == 0) {
-                        auto end_time = std::chrono::high_resolution_clock::now();
-                        std::cout << sum << ' ' << valid_sum << std::endl;
-                        double duration = std::chrono::duration_cast<std::chrono::microseconds>(
-                                end_time - start_time).count();
-                        double global_speed = static_cast<double>(target_stream2.size()) / duration * 1000.0;
-                        log_info("global speed: %.6lf", global_speed);
-                    }
-                    round += 1;
-                }
+//                 uint64_t sum = 0;
+//                 uint64_t valid_sum = 0;
+//                 int round = 0;
+//                 while(true) {
+//                     auto start_time = std::chrono::high_resolution_clock::now();
+//                     for (uint64_t j = 0; j < target_stream2.size(); j++) {
+//                         const operation& op = target_stream2[j];
+//                         const driver::graph::weightedEdge& edge = op.e;
+//                         sum += wrapper::snapshot_has_edge(snapshot_local, edge.source, edge.destination);
+//                     }
+//                     if(round == 0) {
+//                         auto end_time = std::chrono::high_resolution_clock::now();
+//                         std::cout << sum << ' ' << valid_sum << std::endl;
+//                         double duration = std::chrono::duration_cast<std::chrono::microseconds>(
+//                                 end_time - start_time).count();
+//                         double global_speed = static_cast<double>(target_stream2.size()) / duration * 1000.0;
+//                         log_info("global speed: %.6lf", global_speed);
+//                     }
+//                     round += 1;
+//                 }
 
-            }, m_config.writer_threads));
+//             }, m_config.writer_threads));
 
-    auto start = std::chrono::high_resolution_clock::now();
+//     auto start = std::chrono::high_resolution_clock::now();
 
-    auto start_global = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < m_config.writer_threads; i++) {
-        writer_threads.emplace_back(std::thread([this, &target_stream, chunk_size, batch_size] (int thread_id) {
-            wrapper::init_thread(m_method, thread_id);
-            int round = 0;
-            uint64_t start = thread_id * chunk_size;
-            uint64_t end = std::min(start + chunk_size, target_stream.size());
-            uint64_t batch_end = start;
-            uint64_t log_size = batch_size >= 1024 ? batch_size : 1024;
+//     auto start_global = std::chrono::high_resolution_clock::now();
+//     for (int i = 0; i < m_config.writer_threads; i++) {
+//         writer_threads.emplace_back(std::thread([this, &target_stream, chunk_size, batch_size] (int thread_id) {
+//             wrapper::init_thread(m_method, thread_id);
+//             int round = 0;
+//             uint64_t start = thread_id * chunk_size;
+//             uint64_t end = std::min(start + chunk_size, target_stream.size());
+//             uint64_t batch_end = start;
+//             uint64_t log_size = batch_size >= 1024 ? batch_size : 1024;
 
-            for (uint64_t batch_start = start; batch_start < end; batch_start = batch_end) {
-                batch_end = std::min(batch_start + batch_size, end);
-                wrapper::run_batch_edge_update(m_method, target_stream, batch_start, batch_end, operationType::INSERT);
-            }
+//             for (uint64_t batch_start = start; batch_start < end; batch_start = batch_end) {
+//                 batch_end = std::min(batch_start + batch_size, end);
+//                 wrapper::run_batch_edge_update(m_method, target_stream, batch_start, batch_end, operationType::INSERT);
+//             }
 
-//            std::cout << "Updating" << std::endl;
-        }, i));
-        bind_thread_to_core(writer_threads[i], i % std::thread::hardware_concurrency());
-    }
-    for (auto &thread: writer_threads) {
-        thread.join();
-    }
-    auto end_global = std::chrono::high_resolution_clock::now();
-    auto duration_global = std::chrono::duration_cast<std::chrono::nanoseconds>(end_global - start_global);
-    double global_speed = static_cast<double>(target_stream.size()) / duration_global.count() * 1000000.0;
-//    log_info("global duration: %ld", duration_global.count());
-    log_info("global speed: %.6lf", global_speed);
-    abort();
+// //            std::cout << "Updating" << std::endl;
+//         }, i));
+//         bind_thread_to_core(writer_threads[i], i % std::thread::hardware_concurrency());
+//     }
+//     for (auto &thread: writer_threads) {
+//         thread.join();
+//     }
+//     auto end_global = std::chrono::high_resolution_clock::now();
+//     auto duration_global = std::chrono::duration_cast<std::chrono::nanoseconds>(end_global - start_global);
+//     double global_speed = static_cast<double>(target_stream.size()) / duration_global.count() * 1000000.0;
+// //    log_info("global duration: %ld", duration_global.count());
+//     log_info("global speed: %.6lf", global_speed);
+//     abort();
 
-    for (auto &thread: reader_threads) {
-        thread.join();
-    }
-}
+//     for (auto &thread: reader_threads) {
+//         thread.join();
+//     }
+// }
 
-// Small: for write
+//  Small lookups + Batch update: for write
 //template <class F, class S>
 //void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
 //    std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
@@ -1468,95 +1063,92 @@ void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, 
 //}
 
 // For read performance with writers - Note: disable the properties to the memory bandwidth contention
-//template <class F, class S>
-//void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
-//    std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
-//    std::vector<operation> target_stream;
-//    std::vector<operation> target_stream2;
-//    read_stream(target_path, target_stream);
-//    read_stream(target_path2, target_stream2);
-//    std::shuffle(target_stream.begin(), target_stream.end(), std::mt19937(std::random_device()()));
-//    wrapper::set_max_threads(m_method, m_num_threads);
-//    pthread_barrier_t barrier;
-//    pthread_barrier_init(&barrier, nullptr, 32);
-//
-//    std::vector<std::thread> writer_threads;
-//    uint64_t chunk_size = m_config.writer_threads == 0 ? 0 : (target_stream.size() + m_config.writer_threads - 1) / m_config.writer_threads;
-//    std::vector<double> thread_time(m_config.writer_threads);
-//    std::vector<double> thread_speed(m_config.writer_threads);
-//    uint64_t check_point_size = m_config.insert_delete_checkpoint_size;
-//    std::vector<std::vector<double>> thread_check_point(m_config.writer_threads);
-//
-//    std::vector<std::thread> reader_threads;
-//    std::vector<std::vector<double>> reader_execution_time(m_config.reader_threads);
-//
-//    auto snapshot = wrapper::get_shared_snapshot(m_method);
-//    uint64_t num_vertices = wrapper::snapshot_vertex_count(snapshot);
-//    std::vector<uint64_t> degree_list(num_vertices);
-//    for (uint64_t i = 0; i < num_vertices; i++) degree_list[i] = wrapper::degree(m_method, i);
-//
-//    auto start = std::chrono::high_resolution_clock::now();
-//    for (int i = 0; i < m_config.writer_threads; i++) {
-//        writer_threads.emplace_back(std::thread([this, &target_stream, chunk_size] (int thread_id) {
-//            wrapper::init_thread(m_method, thread_id);
-//            uint64_t start = thread_id * chunk_size;
-//            uint64_t size = target_stream.size();
-//            uint64_t end = start + chunk_size;
-//            if (end > size) end = size;
-//            int round = 0;
-//            do {
-//                for (uint64_t j = start; j < end; j++) {
-//                    if ((j - start) == 250000 && thread_id == 0 && round == 0) {
-//                        std::cout << "Updating edge " << (j - start) << "/ " << (end - start) << std::endl;
-//                    }
-//                    operation &op = target_stream[j];
-//                    auto edge = op.e;
-//                    wrapper::remove_edge(m_method, edge.source, edge.destination);
-//                    wrapper::insert_edge(m_method, edge.source, edge.destination);
-//                }
-////                round += 1;
-////                wrapper::run_batch_edge_update(m_method, target_stream, start, end, operationType::DELETE);
-////                wrapper::run_batch_edge_update(m_method, target_stream, start, end, operationType::INSERT);
-////                std::cout << "Updating" << std::endl;
-//            } while (true);
-//        }, i));
-//        bind_thread_to_core(writer_threads[i], i % std::thread::hardware_concurrency());
-//    }
-//
-//        sleep(2);
-//        __itt_resume();
-//    std::atomic<uint64_t> reader_count{0};
-//    for (int i = 0; i < m_config.reader_threads; i++) {
-//        reader_threads.emplace_back(
-//                std::thread([this, &reader_execution_time, &snapshot, &degree_list, &reader_count](int thread_id) {
-//                    wrapper::init_thread(m_method, thread_id);
-//                    auto snapshot_local = wrapper::snapshot_clone(snapshot);
-//
-//                    auto start_time = std::chrono::high_resolution_clock::now();
-//                    std::vector<double> result(wrapper::snapshot_vertex_count(snapshot_local));
-//                    page_rank(snapshot_local, thread_id, m_config.damping_factor, m_config.num_iterations,
-//                              result, degree_list);
-//
-//                    wrapper::end_thread(m_method, thread_id);
-//                    auto end_time = std::chrono::high_resolution_clock::now();
-//                    double duration = std::chrono::duration_cast<std::chrono::microseconds>(
-//                            end_time - start_time).count();
-//                    log_info("read thread %d check point: %.6lf", reader_count++, duration);
-//                }, i + m_config.writer_threads));
-//    }
-//
-//    for (auto &thread: reader_threads) {
-//        thread.join();
-//    }
-//    abort();
-//
-//    __itt_pause();
-//    for (auto &thread: writer_threads) {
-//        thread.join();
-//    }
-//}
+template <class F, class S>
+void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
+   std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
+   std::vector<operation> target_stream;
+   std::vector<operation> target_stream2;
+   read_stream(target_path, target_stream);
+   read_stream(target_path2, target_stream2);
+   std::shuffle(target_stream.begin(), target_stream.end(), std::mt19937(std::random_device()()));
+   wrapper::set_max_threads(m_method, m_num_threads);
+   pthread_barrier_t barrier;
+   pthread_barrier_init(&barrier, nullptr, 32);
 
-// For write performance with readers, Note: disable the properties to minimize the memory bandwidth contention
+   std::vector<std::thread> writer_threads;
+   uint64_t chunk_size = m_config.writer_threads == 0 ? 0 : (target_stream.size() + m_config.writer_threads - 1) / m_config.writer_threads;
+   std::vector<double> thread_time(m_config.writer_threads);
+   std::vector<double> thread_speed(m_config.writer_threads);
+   uint64_t check_point_size = m_config.insert_delete_checkpoint_size;
+   std::vector<std::vector<double>> thread_check_point(m_config.writer_threads);
+
+   std::vector<std::thread> reader_threads;
+   std::vector<std::vector<double>> reader_execution_time(m_config.reader_threads);
+
+   auto snapshot = wrapper::get_shared_snapshot(m_method);
+   uint64_t num_vertices = wrapper::snapshot_vertex_count(snapshot);
+   std::vector<uint64_t> degree_list(num_vertices);
+   for (uint64_t i = 0; i < num_vertices; i++) degree_list[i] = wrapper::degree(m_method, i);
+
+   auto start = std::chrono::high_resolution_clock::now();
+   for (int i = 0; i < m_config.writer_threads; i++) {
+       writer_threads.emplace_back(std::thread([this, &target_stream, chunk_size] (int thread_id) {
+           wrapper::init_thread(m_method, thread_id);
+           uint64_t start = thread_id * chunk_size;
+           uint64_t size = target_stream.size();
+           uint64_t end = start + chunk_size;
+           if (end > size) end = size;
+           int round = 0;
+           do {
+               for (uint64_t j = start; j < end; j++) {
+                   if ((j - start) == 250000 && thread_id == 0 && round == 0) {
+                       std::cout << "Updating edge " << (j - start) << "/ " << (end - start) << std::endl;
+                   }
+                   operation &op = target_stream[j];
+                   auto edge = op.e;
+                   wrapper::remove_edge(m_method, edge.source, edge.destination);
+                   wrapper::insert_edge(m_method, edge.source, edge.destination);
+               }
+//                std::cout << "Updating" << std::endl;
+           } while (true);
+       }, i));
+       bind_thread_to_core(writer_threads[i], i % std::thread::hardware_concurrency());
+   }
+
+       sleep(2);
+       __itt_resume();
+   std::atomic<uint64_t> reader_count{0};
+   for (int i = 0; i < m_config.reader_threads; i++) {
+       reader_threads.emplace_back(
+               std::thread([this, &reader_execution_time, &snapshot, &degree_list, &reader_count](int thread_id) {
+                   wrapper::init_thread(m_method, thread_id);
+                   auto snapshot_local = wrapper::snapshot_clone(snapshot);
+
+                   auto start_time = std::chrono::high_resolution_clock::now();
+                   std::vector<double> result(wrapper::snapshot_vertex_count(snapshot_local));
+                   page_rank(snapshot_local, thread_id, m_config.damping_factor, m_config.num_iterations,
+                             result, degree_list);
+
+                   wrapper::end_thread(m_method, thread_id);
+                   auto end_time = std::chrono::high_resolution_clock::now();
+                   double duration = std::chrono::duration_cast<std::chrono::microseconds>(
+                           end_time - start_time).count();
+                   log_info("read thread %d check point: %.6lf", reader_count++, duration);
+               }, i + m_config.writer_threads));
+   }
+
+   for (auto &thread: reader_threads) {
+       thread.join();
+   }
+   abort();
+
+   __itt_pause();
+   for (auto &thread: writer_threads) {
+       thread.join();
+   }
+}
+
+// For write performance with readers, Note: disable the properties to minimize the memory bandwidth contention. To measure the memory bandwidth accurately, we fork the process, devide the cache and measure it with Intel Vtune lib.
 //template <class F, class S>
 //void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, const std::string & target_path2, const std::string & output_path) {
 //    std::cout << "mixed reader writer, thread num: " << m_config.writer_threads << " " << m_config.reader_threads << std::endl;
@@ -1688,111 +1280,7 @@ void Driver<F, S>::execute_mixed_reader_writer(const std::string & target_path, 
 
 template <class F, class S>
 void Driver<F, S>::execute_qos(const std::string & target_path_search, const std::string target_path_scan, const std::string & output_path) {
-    std::vector<operation> target_stream_search;
-    std::vector<operation> target_stream_scan;
-    read_stream(target_path_search, target_stream_search);
-    read_stream(target_path_scan, target_stream_scan);
-
-    int num_threads_search = m_config.num_threads_search;
-    int num_threads_scan = m_config.num_threads_scan;
-    int num_threads = num_threads_search + num_threads_scan;
-
-    std::vector<std::thread> threads;
-    std::vector<double> thread_time(num_threads);
-    std::vector<double> thread_speed(num_threads);
-    wrapper::set_max_threads(m_method, m_num_threads);
-
-    uint64_t check_point_size = m_config.mb_checkpoint_size;
-    std::vector<std::vector<double>> thread_check_point(num_threads);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    auto snapshot = wrapper::get_shared_snapshot(m_method);
-
-    std::vector<uint64_t> thread_sum(num_threads);
-    uint64_t scan_neighbor_size = 0;
-    uint64_t dest_sum = 0;
-
-    for (int i = 0; i < num_threads_search; i++) {
-        threads.push_back(std::thread([this, &target_stream_search, &snapshot, &thread_time, &thread_speed, &thread_check_point, &dest_sum, check_point_size] (int thread_id) {
-            
-            auto start_time = std::chrono::high_resolution_clock::now();
-            wrapper::init_thread(m_method, thread_id);
-            auto snapshot_local = wrapper::snapshot_clone(snapshot);
-            uint64_t valid_sum = 0;
-
-            for (uint64_t j = 0; j < target_stream_search.size(); j++) {
-                operation op = target_stream_search[j];
-                auto edge = op.e;
-                valid_sum += wrapper::snapshot_has_edge(snapshot_local, edge.source, edge.destination);
-
-                if ((j + 1) % check_point_size == 0) {
-                    auto mid_time = std::chrono::high_resolution_clock::now();
-                    thread_check_point[thread_id].push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(mid_time - start_time).count());
-                }
-            }
-
-            auto end_time = std::chrono::high_resolution_clock::now();
-            wrapper::end_thread(m_method, thread_id);
-            
-            double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-            thread_time[thread_id] = time;
-
-            thread_speed[thread_id] = (double) target_stream_search.size() / thread_time[thread_id] * 1000000.0;
-            dest_sum += valid_sum;
-        }, i));
-        bind_thread_to_core(threads[i], i % std::thread::hardware_concurrency());
-    }
-
-    for (int i = num_threads_search; i < num_threads_search + num_threads_scan; i++) {
-        threads.push_back(std::thread([this, &target_stream_scan, &snapshot, &thread_time, &thread_speed, &thread_check_point, &dest_sum, check_point_size] (int thread_id) {
-            auto start_time = std::chrono::high_resolution_clock::now();
-            wrapper::init_thread(m_method, thread_id);
-            auto snapshot_local = wrapper::snapshot_clone(snapshot);
-            uint64_t valid_sum = 0, sum = 0;
-            auto cb = [thread_id, &sum, &valid_sum](vertexID destination, double weight) {
-                valid_sum += destination;
-                sum += 1;
-                return;
-            };
-
-            for (uint64_t j = 0; j < target_stream_scan.size(); j++) {
-                operation op = target_stream_scan[j];
-                auto edge = op.e;
-                wrapper::snapshot_edges(snapshot_local, edge.source, cb, true);
-
-                if ((j + 1) % check_point_size == 0) {
-                    auto mid_time = std::chrono::high_resolution_clock::now();
-                    thread_check_point[thread_id].push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(mid_time - start_time).count());
-                }
-            }
-
-            auto end_time = std::chrono::high_resolution_clock::now();
-            wrapper::end_thread(m_method, thread_id);
-            
-            double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-            thread_time[thread_id] = time;
-
-            thread_speed[thread_id] = (double) sum / thread_time[thread_id] * 1000000.0;
-            dest_sum += valid_sum;
-        }, i));
-        bind_thread_to_core(threads[i], i % std::thread::hardware_concurrency());
-    }
-
-    for (auto& thread : threads) {
-        thread.join();
-    }
-
-    for (int i = 0; i < num_threads; i++) {
-        log_info("thread %d time: %.6lf", i, thread_time[i]);
-    }
-
-    for (int i = 0; i < num_threads; i++) {
-        for (int j = 0; j < thread_check_point[i].size(); j++) {
-            log_info("thread %d check point %d: %.6lf", i, j * check_point_size, thread_check_point[i][j]);
-        }
-    }
-
-    std::cout << dest_sum << std::endl;
+    // Deprecated‌
 }
 
 

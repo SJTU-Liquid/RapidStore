@@ -162,7 +162,7 @@ Set `workload_type` to be `insert`.
 
 ### Update Experiments
 
-Set `workload_type` to be `micro_benchmark` and change the `execute_microbenchmarks()` to the implementation at line 674 in `driver.h`. Set `mb_operation_types` to `search` and `mb_ts_types` to `general`.
+Set `workload_type` to be `micro_benchmark` and change the `execute_microbenchmarks()` to the implementation at line 417 in `driver.h`. Set `mb_operation_types` to `search` and `mb_ts_types` to `general`.
 
 * `insert_delete_checkpoint_size`: Sets the number of round for update.
 * `microbenchmark_num_threads`: Specifies the number of writers for update operations.
